@@ -10,6 +10,9 @@ char File_read_name[] = "list_cats.txt";
 char File_write_name[] = "list_cats_database.txt";
 	
 
+
+
+
 //создание списка
 List_t* create_list(){
 	List_t *lst = (List_t*)malloc(sizeof(List_t));
