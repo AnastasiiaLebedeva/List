@@ -1,16 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-//#include <ctype.h>
 #include <math.h>
-#include <C:\Users\masya\Desktop\STUDY\PROG\cours\list_lib.h>
+#include "list_lib.h"
 
-char Hello_text[] = "Hello my cat list! ";
-char File_read_name[] = "list_cats.txt";
-char File_write_name[] = "list_cats_database.txt";
-	
-//создание списка
-List_t* create_list(){
+
+List_t* create_list()
+{
 	List_t *lst = (List_t*)malloc(sizeof(List_t));
 	
 	lst -> count = 0;
@@ -19,19 +15,20 @@ List_t* create_list(){
 	return lst;
 }
 
-//указатель на n-ый элемент
-Node_t *get_node(List_t *list, int num_node){
+Node_t *get_node(List_t *list, int num_node)
+{
 	Node_t *base = list -> top_node;
 	
-	if(base != NULL){							/*если список не пуст*/		
-		for(int i = 0; i<num_node-1; i++){ 		/*num_node-1, ибо если элемент последний, то следующий адрес будет null*/
+	if(base != NULL){							
+		for(int i = 0; i<num_node-1; i++){ 				/*num_node-1, ибо если элемент последний, то следующий адрес будет null*/
 			base = base -> next_node; 
 		}
 	}
 	return base;
 }
 
-void push_back(List_t *list, float weight, char* name){
+void push_back(List_t *list, float weight, char* name)
+{
 	
 	Object_t *object_adr = (Object_t*)malloc(sizeof(Object_t));   	/*выделение памяти под новый объект и заполнение его параметров*/
 	object_adr -> weight = weight;
@@ -43,15 +40,16 @@ void push_back(List_t *list, float weight, char* name){
 
 	Node_t *previous_node = get_node(list, list->count);
 	
-	if(previous_node == NULL)							/*добавляется первый элемент списка*/
+	if(previous_node == NULL)										/*добавляется первый элемент списка*/
 		list -> top_node = new_node;
 	else
-		previous_node -> next_node = new_node;			/*для предыдущего элемента записывается следующий элемент списка*/
+		previous_node -> next_node = new_node;						/*для предыдущего элемента записывается следующий элемент списка*/
 	
-	list -> count++; 									/*увеличение кол-ва элементов в списке*/
+	list -> count++; 												
 }
 
-void print_node(List_t *list, int num_node){
+void print_node(List_t *list, int num_node)
+{
 	/*Node_t *node = get_node(list, num_node);
 	Object_t* object_adr = (Object_t*)(node -> object);*/
 	
@@ -61,7 +59,8 @@ void print_node(List_t *list, int num_node){
 
 }
 
-void delete_node(List_t *list, int num_node){
+void delete_node(List_t *list, int num_node)
+{
 	Node_t *node = get_node(list, num_node);
 	Object_t* object_adr = (Object_t*)(node -> object);
 	
@@ -85,7 +84,8 @@ void delete_node(List_t *list, int num_node){
 	list -> count--;
 }
 
-void print_list(List_t *list){
+void print_list(List_t *list)
+{
 	printf("%3s | %15s | %10s \n", "Num", "Name      ", "Weight, kg");
 	for(int i = 0; i < list -> count; i++){
 		print_node(list, i+1);
@@ -98,7 +98,8 @@ void print_list(List_t *list){
 }*/
 
 
-void sort_list(List_t *list, int flg){
+void sort_list(List_t *list, FLAG flg)
+{
 	int N = list -> count;
 	int Swap = 0;
 	
@@ -131,7 +132,8 @@ void sort_list(List_t *list, int flg){
 	}
 }
 
-int filt_list(List_t *list, int flg, float number){
+int filt_list(List_t *list, FLAG flg, float number)
+{
 	int N = list -> count;
 	Object_t *object_adr;
 	int first_print_flg = FALSE;
@@ -160,11 +162,12 @@ int filt_list(List_t *list, int flg, float number){
 	return first_print_flg;
 }
 
-int read_file(List_t *list){
+int read_file(List_t *list)
+{
 	FILE* file;
 	char name[NUM_SYMBOL_NAME];
 	float weight = 0;	
-	unsigned int num_cats = 0;
+	unsigned int count = 0;
 	
 	file = fopen(File_read_name, "r");
 	
@@ -174,17 +177,18 @@ int read_file(List_t *list){
 	
 	while(fscanf(file, "%s %f", name, &weight) != EOF){
 		push_back(list, weight, name);	
-		num_cats++;
+		count++;
 	}
 	
 	fclose(file);
 	
-	return num_cats;
+	return count;
 }
 
-int write_file(List_t *list){
+int write_file(List_t *list)
+{
 	FILE* file;
-	int num_cats = 0;
+	int count = 0;
 	
 	file = fopen(File_write_name, "w");
 	
@@ -200,20 +204,21 @@ int write_file(List_t *list){
 		
 		object_adr = (Object_t*)((Node_t*)get_node(list, i+1) -> object);
 		fprintf(file, "%s %.3f\n", object_adr -> name, object_adr -> weight);
-		num_cats ++;
+		count ++;
 	}
 	
 	fclose(file);
 	
-	return num_cats;
+	return count;
 }
 
-int delete_all(List_t *list){
+int delete_all(List_t *list)
+{
 	
 	Node_t 	 *base = list -> top_node;
 	Node_t 	 *next;
 	Object_t *object_adr; 
-	int num = 0;
+	int count = 0;
 	
 	while(base != NULL){
 		object_adr = (Object_t*)(base -> object);
@@ -225,16 +230,15 @@ int delete_all(List_t *list){
 		
 		base = next;
 		list -> count--;
-		num++;
+		count++;
 	}
 	
 	list -> top_node = NULL;
 	
-	return num;
+	return count;
 }
 
-
-/*------- основной цикл программы -------*/
+//////////////////////////////////////////////////////////////////////
 
 int main()
 {
@@ -242,9 +246,6 @@ int main()
 	
 	int num_printf = 0, new_flag = 0;
 	int end_work = atexit(end_prog);
-	
-	//char name[NUM_SYMBOL_NAME];
-	//float weight = 0;
 				
 	printf("%s\n", Hello_text); 
 	new_flag = HELP;
@@ -284,7 +285,7 @@ int main()
 					printf("Warning! The list is empty. Add cat.\n");
 				else{
 					int number = 0;
-					printf("Which cat do you want to delete? [%d - exit]\n", EXIT_COMMAND);
+					printf("Which cat's number do you want to delete? [%d - exit]\n", EXIT_COMMAND);
 					scanf("%d", &number);		
 						
 					if(number != EXIT_COMMAND){
@@ -343,7 +344,7 @@ int main()
 					new_flag = FREE;
 				}
 				else{
-					int flg = 0;
+					FLAG flg = 0;
 					
 					printf("Choose an attribute : 1 - weight, 2 - name\n");
 					scanf("%d", &flg);
@@ -367,7 +368,7 @@ int main()
 					printf("Warning! The list is empty. Add cat.\n");		
 				}				
 				else{
-					int flg = 0;
+					FLAG flg = 0;
 					
 					printf("Choose an attribute : 1 - weight, 2 - name\n");
 					scanf("%d", &flg);
@@ -440,8 +441,8 @@ int main()
 				printf(" - 2 delete one cat  \n");
 				printf(" - 3 show all the cat \n");
 				printf(" - 4 show the cat by number \n");
-				printf(" - 5 sorting the list by attribute \n");     //сортировка по весу и имени
-				printf(" - 6 filtering the list by attribute \n");     //сортировка по весу и имени
+				printf(" - 5 sorting the list by attribute \n"); 
+				printf(" - 6 filtering the list by attribute \n"); 
 				printf(" - 7 add cats from a file \n");    
 				printf(" - 8 write all cats to a file \n"); 
 				printf(" - 9 delete all cats \n"); 
