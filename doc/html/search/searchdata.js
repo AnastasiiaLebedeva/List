@@ -3,8 +3,8 @@ var indexSectionsWithContent =
   0: "acdefghlmnoprstw",
   1: "lno",
   2: "l",
-  3: "cdefgmprsw",
-  4: "cfhnotw",
+  3: "cdfgmprsw",
+  4: "cnotw",
   5: "lno",
   6: "cf",
   7: "adefhnrsw",
@@ -26,14 +26,14 @@ var indexSectionNames =
 
 var indexSectionLabels =
 {
-  0: "Указатель",
-  1: "Структуры данных",
-  2: "Файлы",
-  3: "Функции",
-  4: "Переменные",
-  5: "Определения типов",
-  6: "Перечисления",
-  7: "Элементы перечислений",
-  8: "Макросы"
+  0: "All",
+  1: "Data Structures",
+  2: "Files",
+  3: "Functions",
+  4: "Variables",
+  5: "Typedefs",
+  6: "Enumerations",
+  7: "Enumerator",
+  8: "Macros"
 };
 

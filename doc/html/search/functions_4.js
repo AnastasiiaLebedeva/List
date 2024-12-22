@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['get_5fnode_0',['get_node',['../list_8c.html#ac41d7ecbca67384f596389fb15d1bc68',1,'get_node(List_t *list, int num_node):&#160;list.c'],['../list__lib_8h.html#ac41d7ecbca67384f596389fb15d1bc68',1,'get_node(List_t *list, int num_node):&#160;list.c']]]
+  ['main_0',['main',['../list_8c.html#ae66f6b31b5ad750f1fe042a706a4e3d4',1,'main():&#160;list.c'],['../list__lib_8h.html#ae66f6b31b5ad750f1fe042a706a4e3d4',1,'main():&#160;list.c']]]
 ];

@@ -19,22 +19,17 @@ Node_t *get_node(List_t *list, int num_node)
 {
 	Node_t *base = list -> top_node;
 	
-	if(base != NULL){							
-		for(int i = 0; i<num_node-1; i++){ 				/*num_node-1, ибо если элемент последний, то следующий адрес будет null*/
+	if(base != NULL){
+		for(int i = 0; i<num_node-1; i++){ 				/*num_node-1, ибо если элемент последний, то следующий адрес будет null*/ //@codereview отступ коментария в этом месте луче производить при помощи пробелов
 			base = base -> next_node; 
 		}
 	}
 	return base;
 }
 
-void push_back(List_t *list, float weight, char* name)
+void push_back(List_t *list, Object_t *object_adr)
 {
-	
-	Object_t *object_adr = (Object_t*)malloc(sizeof(Object_t));   	/*выделение памяти под новый объект и заполнение его параметров*/
-	object_adr -> weight = weight;
-	strcpy(object_adr -> name, name);
-
-	Node_t *new_node = (Node_t*)malloc(sizeof(Node_t));   			/*создание элемента списка*/
+	Node_t *new_node = (Node_t*)malloc(sizeof(Node_t));				/*создание элемента списка*/
 	new_node -> object    = (void*)object_adr;
 	new_node -> next_node = NULL;
 
@@ -45,7 +40,16 @@ void push_back(List_t *list, float weight, char* name)
 	else
 		previous_node -> next_node = new_node;						/*для предыдущего элемента записывается следующий элемент списка*/
 	
-	list -> count++; 												
+	list -> count++;
+}
+
+Object_t *create_obj(float weight, char* name)
+{
+	Object_t *object_adr = (Object_t*)malloc(sizeof(Object_t));   	/*выделение памяти под новый объект и заполнение его параметров*/
+	object_adr -> weight = weight;
+	strcpy(object_adr -> name, name);
+	
+	return object_adr;
 }
 
 void print_node(List_t *list, int num_node)
@@ -65,7 +69,7 @@ void delete_node(List_t *list, int num_node)
 	Object_t* object_adr = (Object_t*)(node -> object);
 	
 	if(list -> count == 1){      								/*элемент один*/
-		list -> top_node = NULL;	
+		list -> top_node = NULL;
 	}
 	else if(num_node == 1){										/*элемент первый*/
 		list -> top_node = node -> next_node;
@@ -120,13 +124,13 @@ void sort_list(List_t *list, FLAG flg)
 			}
 			else if(flg == NAME){
 				if(strcmp(object_first -> name, object_second -> name) > 0)
-					Swap = TRUE;			
+					Swap = TRUE;
 			}
 			
-			if(Swap == TRUE){
-				Swap = FALSE;
+			if(Swap == TRUE){                       //@codereview лучше было бы ввести функцию list_swap(list, obj_1, obj_2)
+				Swap = FALSE;                       //@codereview тогда ее можно было бы использовать в 119 строке, и код функции сильно уменьшился по вертикали
 				node_first -> object  = object_second;
-				node_second -> object = object_first;				
+				node_second -> object = object_first;
 			}
 		}
 	}
@@ -138,7 +142,7 @@ int filt_list(List_t *list, FLAG flg, float number)
 	Object_t *object_adr;
 	int first_print_flg = FALSE;
 	
-	for(int i = 0; i < N-1; i++){
+	for(int i = 0; i < N; i++){
 		object_adr = (Object_t*)((Node_t*)get_node(list, i+1) -> object); 
 		
 		if(flg == WEIGHT && object_adr -> weight >= number){
@@ -146,7 +150,7 @@ int filt_list(List_t *list, FLAG flg, float number)
 				printf("%3s | %15s | %10s \n", "Num", "Name      ", "Weight, kg");
 				first_print_flg = TRUE;
 			}
-				
+			
 			print_node(list, i+1);
 		}
 		if(flg == NAME && strlen(object_adr -> name) >= floor(number)){
@@ -154,29 +158,31 @@ int filt_list(List_t *list, FLAG flg, float number)
 				printf("%3s | %15s | %10s \n", "Num", "Name      ", "Weight, kg");
 				first_print_flg = TRUE;
 			}
-				
+			
 			print_node(list, i+1);
-		}		
+		}
 	}
 	
 	return first_print_flg;
 }
 
-int read_file(List_t *list)
+int read_file(List_t *list, char* file_name)
 {
 	FILE* file;
 	char name[NUM_SYMBOL_NAME];
-	float weight = 0;	
+	float weight = 0;
 	unsigned int count = 0;
+	Object_t *object_adr;
 	
-	file = fopen(File_read_name, "r");
+	file = fopen(file_name, "r");
 	
 	if(file == NULL){	/*ошибка открытия файла*/
 		return ERROR;
 	}
 	
 	while(fscanf(file, "%s %f", name, &weight) != EOF){
-		push_back(list, weight, name);	
+		object_adr = create_obj(weight, name);
+		push_back(list, object_adr);
 		count++;
 	}
 	
@@ -185,12 +191,12 @@ int read_file(List_t *list)
 	return count;
 }
 
-int write_file(List_t *list)
+int write_file(List_t *list, char* file_name)
 {
 	FILE* file;
 	int count = 0;
 	
-	file = fopen(File_write_name, "w");
+	file = fopen(file_name, "w");         //@codereview имя файла лучше передавать в качестве аргумента в функцию, не использовать для этого "глобальные" переменные
 	
 	if(file == NULL){	/*ошибка открытия файла*/
 		return ERROR;
@@ -243,28 +249,22 @@ int delete_all(List_t *list)
 int main()
 {
 	List_t *my_list = create_list();
+	COMAND command = HELP;
 	
-	int num_printf = 0, new_flag = 0;
-	int end_work = atexit(end_prog);
-				
-	printf("%s\n", Hello_text); 
-	new_flag = HELP;
-	num_printf = 1;
+	char Hello_text[] = "Hello my cat list! ";
+	printf("%s\n", Hello_text);
 	
 	do{
-		if(new_flag == FREE && num_printf == FALSE){
-			num_printf = TRUE;
-			printf("\n");
-			printf("Get command for list! \n");
-		}
 		
-		if(new_flag == FREE){
-			scanf("%d", &new_flag);
-			scanf("%*[^\n]");			/*очищение строки (в случае ввода неправильной команды)*/
-		}
-		
-		switch(new_flag){
-		
+		switch(command){
+			
+			case FREE:
+				printf("\n");
+				printf("Get command for list! \n");
+				scanf("%d", &command);
+				scanf("%*[^\n]");			/*очищение строки (в случае ввода неправильной команды)*/
+				break;
+				
 			case ADD:
 				{
 					char name[NUM_SYMBOL_NAME];
@@ -273,10 +273,11 @@ int main()
 					scanf("%16s", &name);
 					printf("Cat's weight: ");
 					scanf("%f", &weight);
-					push_back(my_list, weight, name);
 					
-					num_printf = FALSE;
-					new_flag = FREE;
+					Object_t *object_adr = create_obj(weight, name);
+					push_back(my_list, object_adr);
+					
+					command = FREE;
 				};
 				break;
 				
@@ -286,7 +287,7 @@ int main()
 				else{
 					int number = 0;
 					printf("Which cat's number do you want to delete? [%d - exit]\n", EXIT_COMMAND);
-					scanf("%d", &number);		
+					scanf("%d", &number);
 						
 					if(number != EXIT_COMMAND){
 						if(number <= 0)						printf("Error! The cat's number must be > 0.");
@@ -298,25 +299,23 @@ int main()
 					}
 				}
 				
-				num_printf = FALSE;
-				new_flag = FREE;			
+				command = FREE;
 				break;
 				
 			case SHOW_ALL:
-				if(my_list -> count == 0)		printf("Warning! The list is empty. Add cat.\n");						
+				if(my_list -> count == 0)		printf("Warning! The list is empty. Add cat.\n");
 				else							print_list(my_list);
 				
-				num_printf = FALSE;
-				new_flag = FREE;			
+				command = FREE;
 				break;
 				
 			case SHOW_ONE:
 				if(my_list -> count == 0)  
 					printf("Warning! The list is empty. Add cat.\n");
-				else{			
+				else{
 					int number = 0;
 					printf("Which cat do you want to see? [%d - exit] \n", EXIT_COMMAND);
-					scanf("%d", &number);	
+					scanf("%d", &number);
 					
 					/*проверка на наличие элемента указанного номера*/
 					if(number != EXIT_COMMAND){
@@ -329,19 +328,19 @@ int main()
 							print_node(my_list, number);
 						}
 					}
-				}	
-				num_printf = FALSE;
-				new_flag = FREE;				
+				}
+				
+				command = FREE;
 				break;
 				
 			case SORT_LIST:
 				if(my_list -> count == 0){
 					printf("Warning! The list is empty. Add cat.\n");
-					new_flag = FREE;
+					command = FREE;
 				}		
 				else if(my_list -> count == 1){			//не нужно сортировать 1 элемент
 					print_node(my_list, 1);
-					new_flag = FREE;
+					command = FREE;
 				}
 				else{
 					FLAG flg = 0;
@@ -351,22 +350,21 @@ int main()
 					scanf("%*[^\n]");
 					
 					if(flg != WEIGHT && flg != NAME){
-						printf("Error! The command does not exist\n");	
-						new_flag = FREE;					
+						printf("Error! The command does not exist\n");
+						command = FREE;
 					}
 					else{
 						sort_list(my_list, flg);
-						new_flag = SHOW_ALL;					
+						command = SHOW_ALL;
 					}
 				}
 				
-				num_printf = FALSE;			
 				break;
 				
 			case FILT_LIST:
 				if(my_list -> count == 0){
-					printf("Warning! The list is empty. Add cat.\n");		
-				}				
+					printf("Warning! The list is empty. Add cat.\n");
+				}
 				else{
 					FLAG flg = 0;
 					
@@ -375,13 +373,13 @@ int main()
 					scanf("%*[^\n]");
 					
 					if(flg != WEIGHT && flg != NAME){
-						printf("Error! The command does not exist\n");					
+						printf("Error! The command does not exist\n");
 					}
 					else{
 						printf("Enter a number: show cats with ");
 						float number = 0;
 						
-						if(flg == WEIGHT)		printf("a weight >= ");					
+						if(flg == WEIGHT)		printf("a weight >= ");
 						else if(flg == NAME)	printf("a name length >= ");
 						
 						scanf("%f", &number);
@@ -390,50 +388,48 @@ int main()
 						if(filt_list(my_list, flg, number) == FALSE)
 							printf("There are no cats in the list by filter \n");
 					}
-				}		
+				}
 				
-				num_printf = FALSE;
-				new_flag = FREE;				
+				command = FREE;
 				break;
 			
 			case READ_FILE:
 				printf("Write name file (<%d symbols): ", NUM_SYMBOL_NAME_FILE-1);
-				scanf("%50s", &File_read_name);
+				char file_name[NUM_SYMBOL_NAME_FILE];
+				scanf("%50s", &file_name);
 				
 				unsigned int num_cats = 0;
-				num_cats = read_file(my_list);
+				num_cats = read_file(my_list, file_name);
 				
 				if(num_cats == ERROR)   printf("File is not find :( \n");
 				else					printf("%d cats have been added in list! \n", num_cats);
 				
-				num_printf = FALSE;
-				new_flag = FREE;				
+				command = FREE;
 				break;
 				
 			case WRITE_FILE:
 				if(my_list -> count == 0)		printf("Warning! The list is empty. Add cat.\n");
-				else{		
+				else{
 					printf("Write name file (<%d symbols): ", NUM_SYMBOL_NAME_FILE-1);
-					scanf("%50s", &File_write_name);
+					char file_name[NUM_SYMBOL_NAME_FILE];
+					scanf("%50s", &file_name);
 					
 					unsigned int num_cats = 0;
-					num_cats = write_file(my_list);
+					num_cats = write_file(my_list, file_name);
 					
 					if(num_cats == ERROR)		printf("File is not create :(\n");
 					else						printf("%d cats were recorded in file! \n", num_cats);
 				}
 				
-				num_printf = FALSE;
-				new_flag = FREE;				
+				command = FREE;
 				break;
 				
 			case DEL_ALL:
 				if(my_list -> count != 0)	printf("Success! The number of deleted cats = %d. \n", delete_all(my_list));
-				else						printf("Warning! The list is empty. Add cat.\n");	
+				else						printf("Warning! The list is empty. Add cat.\n");
 				
-				num_printf = FALSE;
-				new_flag = FREE;				
-				break;	
+				command = FREE;
+				break;
 				
 			case HELP:
 				printf("Available commands: \n");
@@ -447,27 +443,22 @@ int main()
 				printf(" - 8 write all cats to a file \n"); 
 				printf(" - 9 delete all cats \n"); 
 				printf(" - 10 help \n");
-				printf(" - 11 exit \n");			
-				num_printf = FALSE;
-				new_flag = FREE;				
-				break;	
-				
-			case EXIT:
-				exit(EXIT_SUCCESS);		
-				//delete_all(my_list); - ?				
+				printf(" - 11 exit \n");
+				command = FREE;
 				break;
 				
 			default:
 				printf("Error! The command does not exist\n");
-				num_printf = FALSE;
-				new_flag = FREE;				
+				command = FREE;
 		}
-	}while(new_flag != EXIT);
+	}while(command != EXIT);
+	
+	
+	/*выход из бесконечного цикла, завершение работы программы, освобождение выделенной памяти*/
+	printf("Bye!\n");
+	delete_all(my_list);
+	free(my_list);	
 	
 	return 0;
 }
 
-void end_prog()
-{   
-	printf("Bye!\n");
-}

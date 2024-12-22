@@ -8,26 +8,19 @@
 #include <stdlib.h>
 
 //! Количество символов в параметре "name" объекта.
-#define NUM_SYMBOL_NAME 	 16
+#define NUM_SYMBOL_NAME      16
 //! Количество символов в имени файлов.
 #define NUM_SYMBOL_NAME_FILE 50
 
 //! Символ, необходимый для выхода из функции выполнения команды.
-#define EXIT_COMMAND    	 -1
+#define EXIT_COMMAND         -1
 //! Ошибка открытия файла.
-#define ERROR 				 -2
+#define ERROR                -2
 
 //! Истина.
-#define TRUE				 1
+#define TRUE                  1
 //! Ложь.
-#define FALSE				 0
-
-//! Приветствие при загрузке программы.
-char Hello_text[] = "Hello my cat list! ";
-//! Массив имени файла для чтения.
-char File_read_name[] = "";
-//! Массив имени файла для записи.
-char File_write_name[] = "";
+#define FALSE                 0
 
 /**
 	@brief Список возможных комманд.
@@ -35,11 +28,11 @@ char File_write_name[] = "";
 typedef enum
 {
 	//! Новая команда отсуствует.
-	FREE		= 0,
+	FREE        = 0,
 	//! Добавление нового объекта в список.
-	ADD 		= 1,
+	ADD         = 1,
 	//! Удаление одного объекта списка.
-	DEL 		= 2,
+	DEL         = 2,
 	//! Вывод всех объектов на экран.
 	SHOW_ALL    = 3,
 	//! Вывод одного объекта на экран.
@@ -55,9 +48,9 @@ typedef enum
 	//! Удаление всех объектов.
 	DEL_ALL     = 9,
 	//! Вывод на экран списка возможных команд.
-	HELP 		= 10,
+	HELP        = 10,
 	//! Выход из программы.
-	EXIT 		= 11
+	EXIT        = 11
 }COMAND;
 
 /**
@@ -68,9 +61,9 @@ typedef enum
 typedef enum
 {
 	//! Вес.
-	WEIGHT 	= 1,
+	WEIGHT  = 1,
 	//! Имя.
-	NAME 	= 2	
+	NAME    = 2
 }FLAG;
 
 /**
@@ -82,7 +75,7 @@ struct Object
 	//! Вес объекта.
 	float weight;
 	//! Имя объекта.
-	char  name[NUM_SYMBOL_NAME];	
+	char  name[NUM_SYMBOL_NAME];
 };
 
 
@@ -93,9 +86,9 @@ typedef struct Node Node_t;
 struct Node
 {
 	//! Указатель на объект.
-	void	  *object; 	   	
+	void   *object;
 	//! Указатель на следующий элемент списка.
-	Node_t    *next_node; 		
+	Node_t *next_node;
 };
 
 
@@ -106,17 +99,13 @@ typedef struct List List_t;
 struct List
 {
 	//! Указатель на первый элемент списка.
-	Node_t *top_node;  		
-	//! Количество элементов в списке.	
-	int count; 					
+	Node_t *top_node;
+	//! Количество элементов в списке.
+	int    count;
 };
 
 
 
-/**
-	@brief Функция, вызываемая при выходе из программы.
-*/
-void end_prog();
 
 /**
 	@brief Функция создания списка.
@@ -125,20 +114,27 @@ void end_prog();
 List_t* create_list();
 
 /**
-	@brief Функция, вызываемая при выходе из программы.
+	@brief Функция выдачи элемента списка по номеру.
 	@param list указатель на список.
 	@param num_node номер объекта.
-	@return Функция возвращает указатель на искомый объект.
+	@return Функция возвращает указатель на искомый элемент списка.
 */
 Node_t *get_node(List_t *list, int num_node);
 
 /**
-	@brief Функция добавления объекта в конец списка.
+	@brief Функция добавления элемента в конец списка.
 	@param list указатель на список.
+	@param object_adr указатель на объект.
+*/
+void push_back(List_t *list, Object_t *object_adr);
+
+/**
+	@brief Функция создания нового объекта.
 	@param weight параметр объекта (вес).
 	@param name параметр объекта (имя).
+	@return Функция возвращает указатель на созданный объект.
 */
-void push_back(List_t *list, float weight, char* name);
+Object_t *create_obj(float weight, char* name);
 
 /**
 	@brief Функция вывода на экран одного объекта по номеру.
@@ -190,9 +186,10 @@ int filt_list(List_t *list, FLAG flg, float number);
 		Файл в формате .txt должен содержать объекты в виде: "имя" "вес" (без кавычек). Файл должен находится в директории программы. 
 		
 	@param list указатель на список.
+	@param file_name имя файла.
 	@return Функция возвращает ERROR, если файл не был найден. Количество добавленных в список элементов в случае успешного создания файла.
 */
-int read_file(List_t *list);
+int read_file(List_t *list, char* file_name);
 
 /**
 	@brief Функция записи объектов в файл.
@@ -200,9 +197,10 @@ int read_file(List_t *list);
 		Созданный файл в формате .txt содержат объекты в виде: "имя" "вес" (без кавычек). Созданный файл находится в директории программы. 
 		
 	@param list указатель на список.
+	@param file_name имя файла.
 	@return Функция возвращает ERROR, если файл не был создан. Количество записанных элементов, в случае успешного создания файла.
 */
-int write_file(List_t *list);
+int write_file(List_t *list, char* file_name);
 
 /**
 	@brief Функция удаления всех объектов.
@@ -217,3 +215,4 @@ int delete_all(List_t *list);
 		Данная функция представляет собой бесконечный цикл, где производится чтение команд от пользователя из командной строки.
 */
 int main();
+

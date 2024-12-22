@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['file_5fread_5fname_0',['File_read_name',['../list__lib_8h.html#ac44499aee087b0b9d910a14d6c1af23d',1,'list_lib.h']]],
-  ['file_5fwrite_5fname_1',['File_write_name',['../list__lib_8h.html#a9f8c5abff62d5ff04dee4991d7470606',1,'list_lib.h']]]
+  ['name_0',['name',['../struct_object.html#aa5ddbb125024e2c15d06bc0658a36991',1,'Object']]],
+  ['next_5fnode_1',['next_node',['../struct_node.html#add990f39fd19289a1f8138770ee1840f',1,'Node']]]
 ];

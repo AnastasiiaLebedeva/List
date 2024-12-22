@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['object_0',['object',['../struct_node.html#a077376d12464f945e2414d5499c79b3f',1,'Node']]]
+  ['weight_0',['weight',['../struct_object.html#ac2437a774799c144a4617ac4ea86945d',1,'Object']]]
 ];
