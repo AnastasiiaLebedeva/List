@@ -20,32 +20,32 @@ Node_t *get_node(List_t *list, int num_node)
 	Node_t *base = list -> top_node;
 	
 	if(base != NULL){
-		for(int i = 0; i<num_node-1; i++){ 				/*num_node-1, ибо если элемент последний, то следующий адрес будет null*/ //@codereview отступ коментария в этом месте луче производить при помощи пробелов
+		for(int i = 0; i<num_node-1; i++){                 /*num_node-1, ибо если элемент последний, то следующий адрес будет null*/ //@codereview отступ коментария в этом месте луче производить при помощи пробелов
 			base = base -> next_node; 
 		}
 	}
 	return base;
 }
 
-void push_back(List_t *list, Object_t *object_adr)
+void push_back(List_t *list, Object_t *object_adr)      //@codereview лучше в эту фукнцию передавать сохраняемый объект, а не создавать его внутри: функция написана не в обобщенном виде
 {
-	Node_t *new_node = (Node_t*)malloc(sizeof(Node_t));				/*создание элемента списка*/
+	Node_t *new_node = (Node_t*)malloc(sizeof(Node_t));      /*создание элемента списка*/
 	new_node -> object    = (void*)object_adr;
 	new_node -> next_node = NULL;
 
 	Node_t *previous_node = get_node(list, list->count);
 	
-	if(previous_node == NULL)										/*добавляется первый элемент списка*/
+	if(previous_node == NULL)                                /*добавляется первый элемент списка*/
 		list -> top_node = new_node;
 	else
-		previous_node -> next_node = new_node;						/*для предыдущего элемента записывается следующий элемент списка*/
+		previous_node -> next_node = new_node;               /*для предыдущего элемента записывается следующий элемент списка*/
 	
 	list -> count++;
 }
 
 Object_t *create_obj(float weight, char* name)
 {
-	Object_t *object_adr = (Object_t*)malloc(sizeof(Object_t));   	/*выделение памяти под новый объект и заполнение его параметров*/
+	Object_t *object_adr = (Object_t*)malloc(sizeof(Object_t));   /*выделение памяти под новый объект и заполнение его параметров*/
 	object_adr -> weight = weight;
 	strcpy(object_adr -> name, name);
 	
@@ -57,9 +57,9 @@ void print_node(List_t *list, int num_node)
 	/*Node_t *node = get_node(list, num_node);
 	Object_t* object_adr = (Object_t*)(node -> object);*/
 	
-	Object_t *object_adr = (Object_t*)((Node_t*)get_node(list, num_node) -> object);  	/*преобразуем адрес, в тип объекта*/
+	Object_t *object_adr = (Object_t*)((Node_t*)get_node(list, num_node) -> object);  /*преобразуем адрес, в тип объекта*/
 	
-	printf("%3d | %15s | %.3f \n", num_node, object_adr -> name, object_adr -> weight);	
+	printf("%3d | %15s | %.3f \n", num_node, object_adr -> name, object_adr -> weight);
 
 }
 
@@ -68,16 +68,16 @@ void delete_node(List_t *list, int num_node)
 	Node_t *node = get_node(list, num_node);
 	Object_t* object_adr = (Object_t*)(node -> object);
 	
-	if(list -> count == 1){      								/*элемент один*/
+	if(list -> count == 1){                   /*элемент один*/
 		list -> top_node = NULL;
 	}
-	else if(num_node == 1){										/*элемент первый*/
+	else if(num_node == 1){                   /*элемент первый*/
 		list -> top_node = node -> next_node;
 	}
 	else{
 		Node_t *previous_node = get_node(list, num_node-1);
 		
-		if(num_node == list -> count)							/*элемент последний*/
+		if(num_node == list -> count)        /*элемент последний*/
 			previous_node -> next_node = NULL;
 		else
 			previous_node -> next_node = node -> next_node;
@@ -126,7 +126,7 @@ void sort_list(List_t *list, FLAG flg)
 				if(strcmp(object_first -> name, object_second -> name) > 0)
 					Swap = TRUE;
 			}
-			
+			/*в функцию swap() нужно передавать много аргументов*/
 			if(Swap == TRUE){                       //@codereview лучше было бы ввести функцию list_swap(list, obj_1, obj_2)
 				Swap = FALSE;                       //@codereview тогда ее можно было бы использовать в 119 строке, и код функции сильно уменьшился по вертикали
 				node_first -> object  = object_second;
@@ -176,7 +176,7 @@ int read_file(List_t *list, char* file_name)
 	
 	file = fopen(file_name, "r");
 	
-	if(file == NULL){	/*ошибка открытия файла*/
+	if(file == NULL){   /*ошибка открытия файла*/
 		return ERROR;
 	}
 	
@@ -198,7 +198,7 @@ int write_file(List_t *list, char* file_name)
 	
 	file = fopen(file_name, "w");         //@codereview имя файла лучше передавать в качестве аргумента в функцию, не использовать для этого "глобальные" переменные
 	
-	if(file == NULL){	/*ошибка открытия файла*/
+	if(file == NULL){   /*ошибка открытия файла*/
 		return ERROR;
 	}
 	
@@ -248,8 +248,12 @@ int delete_all(List_t *list)
 
 int main()
 {
-	List_t *my_list = create_list();
+	List_t *my_list = create_list();     //@codereview у вас утечка памяти, объект создаете, но не удаляете
+	                                     //@codereview тоже самое с хранимыми объектами в списке
 	COMAND command = HELP;
+	
+	//int num_printf = 0, new_flag = 0;    //@codereview не совсем понял зачем нужны переменные, кажется от них можно безболезненно избавиться и сократить код по вертикали, в switc-case можно использовать default; new_flag не самый удачный нейминг
+	//int end_work = atexit(end_prog);     //@codereview не нашел места, где переменная используется
 	
 	char Hello_text[] = "Hello my cat list! ";
 	printf("%s\n", Hello_text);
@@ -262,7 +266,7 @@ int main()
 				printf("\n");
 				printf("Get command for list! \n");
 				scanf("%d", &command);
-				scanf("%*[^\n]");			/*очищение строки (в случае ввода неправильной команды)*/
+				scanf("%*[^\n]");                  /*очищение строки (в случае ввода неправильной команды)*/
 				break;
 				
 			case ADD:
@@ -396,7 +400,8 @@ int main()
 			case READ_FILE:
 				printf("Write name file (<%d symbols): ", NUM_SYMBOL_NAME_FILE-1);
 				char file_name[NUM_SYMBOL_NAME_FILE];
-				scanf("%50s", &file_name);
+				scanf("%50s", &file_name);                         //@codereview потенциальное место ошибки, т.к. для переменной File_read_name у вас выделено 1 байт в BSS сегменте
+				                                                   //@codereview и вообще глобальные переменные лучше не использовать
 				
 				unsigned int num_cats = 0;
 				num_cats = read_file(my_list, file_name);
@@ -412,7 +417,8 @@ int main()
 				else{
 					printf("Write name file (<%d symbols): ", NUM_SYMBOL_NAME_FILE-1);
 					char file_name[NUM_SYMBOL_NAME_FILE];
-					scanf("%50s", &file_name);
+					scanf("%50s", &file_name);                      //@codereview потенциальное место ошибки, т.к. для переменной File_write_name у вас выделено 1 байт в BSS сегменте
+					                                                //@codereview и вообще глобальные переменные лучше не использовать
 					
 					unsigned int num_cats = 0;
 					num_cats = write_file(my_list, file_name);
@@ -447,9 +453,13 @@ int main()
 				command = FREE;
 				break;
 				
+			//case EXIT:
+				//exit(EXIT_SUCCESS);//@codereview формальная утечка памяти, т.к. не почищены созданные на куче объекты
+				//break;
+				
 			default:
 				printf("Error! The command does not exist\n");
-				command = FREE;
+				command = FREE;      //@codereview много мест, где в конце строки стоит табуляция
 		}
 	}while(command != EXIT);
 	
